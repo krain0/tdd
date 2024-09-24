@@ -54,7 +54,6 @@ class TestCounterEndPoints:
         assert result.status_code == status.HTTP_200_OK
         new_count = result.json["testingUpdate"]
         assert original_count + 1 == new_count
-        # result = client.get('/counters/testingUpdate')
 
     def test_get_counter(self, client):
         result = client.post('/counters/testingGet')
