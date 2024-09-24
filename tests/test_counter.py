@@ -57,5 +57,16 @@ class TestCounterEndPoints:
         returned_count = result.json["testingGet"]
         assert original_count == returned_count
 
-        
+    def test_del_counter(self, client):
+        counter_name = '/counters/testingDel'
+        result = client.post(counter_name)
+        assert result.status_code == status.HTTP_201_CREATED
+        result = client.delete(counter_name)
+        assert result.status_code == status.HTTP_204_NO_CONTENT
+        result = client.get(counter_name)
+        assert result.status_code == status.HTTP_404_NOT_FOUND
 
+    def test_del_counter_not_present(self, client):
+        counter_name = '/counters/testingDelNotPresent'
+        result = client.delete(counter_name);
+        assert result.status_code == status.HTTP_404_NOT_FOUND
