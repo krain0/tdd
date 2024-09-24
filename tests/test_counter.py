@@ -19,13 +19,6 @@ from src.counter import app
 # we need to import the file that contains the status codes
 from src import status 
 
-# def test_create_a_counter():
-#      """It should create a counter"""
-#      client = app.test_client()
-#      result = client.post('/counters/foo')
-#      assert result.status_code == status.HTTP_201_CREATED
-
-
 @pytest.fixture()
 def client():
   return app.test_client()
