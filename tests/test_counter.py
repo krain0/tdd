@@ -1,17 +1,5 @@
-"""
-Test Cases for Counter Web Service
-
-Create a service that can keep a track of multiple counters
-- API must be RESTful - see the status.py file. Following these guidelines, you can make assumptions about
-how to call the web service and assert what it should return.
-- The endpoint should be called /counters
-- When creating a counter, you must specify the name in the path.
-- Duplicate names must return a conflict error code.
-- The service must be able to update a counter by name.
-- The service must be able to read the counter
-"""
-
 import pytest
+import uuid
 
 # we need to import the unit under test - counter
 from src.counter import app 
@@ -21,52 +9,56 @@ from src import status
 
 @pytest.fixture()
 def client():
-  return app.test_client()
+    return app.test_client()
+
+@pytest.fixture()
+def unique_counter_name():
+    """Generate a unique counter name for testing."""
+    return f"counter-{uuid.uuid4()}"
 
 @pytest.mark.usefixtures("client")
 class TestCounterEndPoints:
     """Test cases for Counter-related endpoints"""
 
-    def test_create_a_counter(self, client):
+    def test_create_a_counter(self, client, unique_counter_name):
         """It should create a counter"""
-        result = client.post('/counters/foo')
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_201_CREATED     
 
-    def test_duplicate_a_counter(self, client):
+    def test_duplicate_a_counter(self, client, unique_counter_name):
         """It should return an error for duplicates"""
-        result = client.post('/counters/bar')
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_201_CREATED
-        result = client.post('/counters/bar')
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_409_CONFLICT
     
-    def test_update_a_counter(self, client):
-        result = client.post('/counters/testingUpdate')
+    def test_update_a_counter(self, client, unique_counter_name):
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_201_CREATED
-        original_count = result.json["testingUpdate"]
-        result = client.put('/counters/testingUpdate')
+        original_count = result.json[unique_counter_name]
+        result = client.put(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_200_OK
-        new_count = result.json["testingUpdate"]
+        new_count = result.json[unique_counter_name]
         assert original_count + 1 == new_count
 
-    def test_get_counter(self, client):
-        result = client.post('/counters/testingGet')
+    def test_get_counter(self, client, unique_counter_name):
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_201_CREATED
-        original_count = result.json["testingGet"]
-        result = client.get('/counters/testingGet')
+        original_count = result.json[unique_counter_name]
+        result = client.get(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_200_OK
-        returned_count = result.json["testingGet"]
+        returned_count = result.json[unique_counter_name]
         assert original_count == returned_count
 
-    def test_del_counter(self, client):
-        counter_name = '/counters/testingDel'
-        result = client.post(counter_name)
+    def test_del_counter(self, client, unique_counter_name):
+        result = client.post(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_201_CREATED
-        result = client.delete(counter_name)
+        result = client.delete(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_204_NO_CONTENT
-        result = client.get(counter_name)
+        result = client.get(f'/counters/{unique_counter_name}')
         assert result.status_code == status.HTTP_404_NOT_FOUND
 
     def test_del_counter_not_present(self, client):
-        counter_name = '/counters/testingDelNotPresent'
-        result = client.delete(counter_name);
+        counter_name = f'/counters/counter-{uuid.uuid4()}'
+        result = client.delete(counter_name)
         assert result.status_code == status.HTTP_404_NOT_FOUND
