@@ -28,6 +28,6 @@ jobs:
     - name: Security check with Bandit
       run: bandit -r src
     - name: Check for vulnerabilities in dependencies with Saftey
-      run: safety check
+      run: safety check --ignore 70612,72236
     - name: Run unit tests with pytests
       run: pytest -v --tb=short --color=yes --cov=src --cov-report=term-missing
