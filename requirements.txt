@@ -3,3 +3,5 @@ pytest-cov
 Flask
 flake8
 uuid
+mypy
+bandit
