@@ -5,4 +5,4 @@ flake8
 uuid
 mypy
 bandit
-saftey
+safety
